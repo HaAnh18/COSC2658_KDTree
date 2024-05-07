@@ -7,22 +7,34 @@ public class PlaceManager {
     private static final String[] types = {"Restaurant", "Hospital", "Library", "Cafe", "Market"};
     private static final String[] additionalServices = {"WiFi", "Parking", "Drive-through", "Delivery", "Pet-friendly"};
 
+    // Method to generate a large number of places and save them to a file
     public static void generateAllPlaces(Map2D map, String filename) {
         try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(new File(filename))))) {
+            // Generate places for different regions (A, B, C, D) with increasing ranges
+            // Each region is represented by a character ('A', 'B', 'C', 'D')
+            // The ranges for each region are defined as (startId, endId, maxResults)
+            // The number of places generated for each region increases exponentially
             generatePlaces(map, out, 'A', 1, 10000, 12500);
             generatePlaces(map, out, 'B', 10001, 100000, 12500);
             generatePlaces(map, out, 'C', 100001, 1000000, 12500);
             generatePlaces(map, out, 'D', 1000001, 10000000, 12500);
         } catch (IOException e) {
+            // If an IOException occurs while writing to the file, print an error message
             System.err.println("Error writing to file: " + e.getMessage());
         }
     }
 
+    // Method to generate places within a specified range and add them to the map and a file
     private static void generatePlaces(Map2D map, PrintWriter out, char prefix, int min, int max, int count) {
+        // Loop to generate the specified number of places
         for (int i = 0; i < count; i++) {
+            // Generate random x and y coordinates within the specified range
             int x = rand.nextInt(max - min + 1) + min;
             int y = rand.nextInt(max - min + 1) + min;
+
+            // Select a random type of service for the place
             String type = types[rand.nextInt(types.length)];
+            // Create an array of services for the place, including the type and an additional random service
             String[] services = {type, additionalServices[rand.nextInt(additionalServices.length)]};
             String id = prefix + Integer.toString(i + 1);
             String name = "Place " + id;

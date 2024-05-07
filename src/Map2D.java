@@ -3,17 +3,21 @@ import ADTs.ArrayQueue;
 public class Map2D {
     private PlaceNode root;
 
+    // Method to add a new place to the map
     public boolean add(String id, String name, int x, int y, String[] services) {
+        // If the root is null, create a new tree with the new place as the root
         if (root == null) {
             root = new PlaceNode(new Place(id, name, new Point(x, y), services), null);
             return true;
         }
+        // Traverse the tree to find the appropriate position to insert the new place
         PlaceNode temp = root;
         int depth = 0;
         while (temp != null) {
-            int axis = depth % 2;
-            int target = axis == 0 ? x : y;
-            int currentPlace = axis == 0 ? temp.getPlace().getPoint().getX() : temp.getPlace().getPoint().getY();
+            int axis = depth % 2; // Determine the axis (x-axis or y-axis)
+            int target = axis == 0 ? x : y; // Determine the target coordinate
+            int currentPlace = axis == 0 ? temp.getPlace().getPoint().getX() : temp.getPlace().getPoint().getY(); // Get the current place's coordinate along the axis
+            // Move left or right depending on the comparison with the target coordinate
             if (target < currentPlace) {
                 if (temp.getLeft() == null) {
                     PlaceNode newPlace = new PlaceNode(new Place(id, name, new Point(x, y), services), temp);
@@ -34,7 +38,7 @@ public class Map2D {
         return false;
     }
 
-
+    // Method to search for a place based on its coordinates
     public PlaceNode searchPlace(Point point) {
         PlaceNode temp = root;
         int depth = 0;
@@ -43,9 +47,11 @@ public class Map2D {
                 return temp;
             }
 
+            // Determine the axis to search along
             int target = depth % 2 == 0 ? point.getX() : point.getY();
             int currentPlace = depth % 2 == 0 ? temp.getPlace().getPoint().getX() : temp.getPlace().getPoint().getY();
 
+            // Move left or right based on the comparison with the target coordinate
             if (target < currentPlace) {
                 temp = temp.getLeft();
             } else {
@@ -57,6 +63,7 @@ public class Map2D {
         return null;
     }
 
+    // Methods to edit the name, services, or both of a place at given coordinates
     public Place edit(int x, int y, String newName, String[] newServices) {
         Point pos = new Point(x, y);            // Create a point with the provided coordinates
         PlaceNode node = searchPlace(pos);      // Find the node that corresponds to this point
@@ -91,6 +98,7 @@ public class Map2D {
         return null;
     }
 
+    // Method to search for available places within a given rectangle and with a specified service type
     public ArrayQueue<Place> searchAvailable(Point center, int width, int height, String type, int maxResults) {
         ArrayQueue<Place> results = new ArrayQueue<>();
         int minX = center.getX() - width/2;
@@ -101,37 +109,47 @@ public class Map2D {
         searchInRectangle(root, minX, maxX, minY, maxY, type, results, maxResults,0);
         return results;
     }
-    private void searchInRectangle(PlaceNode node, int minX, int maxX, int minY, int maxY, String type, ADTs.ArrayQueue<Place> results, int maxResults, int depth) {
+
+    // Helper method to recursively search for places within a rectangle
+    private void searchInRectangle(PlaceNode node, int minX, int maxX, int minY, int maxY, String type, ArrayQueue<Place> results, int maxResults, int depth) {
+        // Base case: if the current node is null or the maximum number of results has been reached, return
         if (node == null || results.size() >= maxResults) {
             return;
         }
+
+        // Get the coordinates and services of the place stored in the current node
         int x = node.getPlace().getPoint().getX();
         int y = node.getPlace().getPoint().getY();
         String[] services = node.getPlace().getServices();
 
+        // Check if the place falls within the specified rectangle and offers the required service
         if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
             for (String service : services) {
                 if (service.equals(type)) {
-                    results.enQueue(node.getPlace());
+                    results.enQueue(node.getPlace()); // If the service matches, enqueue the place
                     break;
                 }
             }
         }
 
-        // Alternate dimensions
-        int cd = depth % 2;
-        if (cd == 0) {
+        // Alternate dimensions for traversal (x-axis and y-axis)
+        int cd = depth % 2; // Calculate the current dimension
+        if (cd == 0) { // If the current dimension is x-axis
             if (x > minX && node.getLeft() != null) {
+                // Recursively search in the left subtree if applicable
                 searchInRectangle(node.getLeft(), minX, maxX, minY, maxY, type, results, maxResults, depth + 1);
             }
             if (x < maxX && node.getRight() != null) {
+                // Recursively search in the right subtree if applicable
                 searchInRectangle(node.getRight(), minX, maxX, minY, maxY, type, results, maxResults, depth + 1);
             }
-        } else {
+        } else {  // If the current dimension is y-axis
             if (y > minY && node.getLeft() != null) {
+                // Recursively search in the left subtree if applicable
                 searchInRectangle(node.getLeft(), minX, maxX, minY, maxY, type, results, maxResults, depth + 1);
             }
             if (y < maxY && node.getRight() != null) {
+                // Recursively search in the right subtree if applicable
                 searchInRectangle(node.getRight(), minX, maxX, minY, maxY, type, results, maxResults, depth + 1);
             }
         }
@@ -191,6 +209,7 @@ public class Map2D {
         return res;                    // Return the minimum node.
     }
 
+    // Getter method to retrieve the root of the KD Tree
     public PlaceNode getRoot() {
         return root;
     }
