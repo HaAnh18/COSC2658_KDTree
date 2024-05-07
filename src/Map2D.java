@@ -157,6 +157,9 @@ public class Map2D {
 
     public boolean remove(int x, int y) {
         Point pos = new Point(x, y);
+        if (searchPlace(pos) == null) {
+            return false;
+        }
         root = deleteNode(root, pos, 0); // Call deleteNode to attempt to remove the node starting from the root at depth 0.
         return root != null;            // Return true if the root is not null after deletion, indicating the tree is not empty.
     }
@@ -189,7 +192,7 @@ public class Map2D {
         return root;                   // Return the root (helps in re-linking parents during recursion).
     }
 
-    private PlaceNode findMin(PlaceNode node, int d, int depth) {
+    public PlaceNode findMin(PlaceNode node, int d, int depth) {
         if (node == null) return null;  // Base case: if node is null, return null.
 
         int cd = depth % 2;             // Calculate current dimension (x or y).
